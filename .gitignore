@@ -1,1 +1,5 @@
-Captura*
+*.cap
+*.csv
+*.netxml
+*.txt
+
