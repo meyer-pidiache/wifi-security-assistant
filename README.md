@@ -27,7 +27,9 @@ sudo ./reset.sh
 
 ## mach.sh
 
-``` bash
 Change MAC Address
+
+``` bash
+sudo ./mach.sh
 ```
 
