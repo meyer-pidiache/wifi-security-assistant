@@ -1,6 +1,12 @@
 # WI-FI Tool #<b>This tool is in maintenance</b>
 
-WI-FI Deauthentication Attack
+WI-FI Deauthentication Attack on Parrot OS
+
+Based on: 
+
+S4vitar - https://github.com/s4vitar/wifiCrack
+
+David Bombal - https://www.youtube.com/watch?v=WfYxrLaqlN8
 
 ## Requirements
 

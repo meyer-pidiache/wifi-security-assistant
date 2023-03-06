@@ -40,6 +40,7 @@ function checkDependencies() {
 if [ "$(id -u)" == "0" ]; then
   clear
   checkDependencies
+
   # Mac Address
   interface=$(iw dev | awk '$1=="Interface"{print $2}')
   ifconfig $interface down && macchanger -a $interface
@@ -53,12 +54,14 @@ if [ "$(id -u)" == "0" ]; then
     airmon-ng start $interface
   fi
   clear
-  # New configurations
+
+  # Show new configurations
   macchanger -s $interface
   iw dev
   sleep 2
-  # Networks
-  xterm -e "airodump-ng $interface
+  
+  # Show networks
+  xterm -e "airodump-ng $interface"
 else
   echo "Run as root"
 fi
