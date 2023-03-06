@@ -9,48 +9,56 @@ yellowColour="\e[0;33m\033[1m"
 purpleColour="\e[0;35m\033[1m"
 turquoiseColour="\e[0;36m\033[1m"
 grayColour="\e[0;37m\033[1m"
-                                                                                                  
-function dependencies(){
-	clear; dependencies=(aircrack-ng macchanger)
 
-	echo -e "${yellowColour}[*]${endColour}${grayColour} Checking programs...${endColour}"
-	sleep 2
+function checkDependencies() {
+  clear
+  dependencies=(aircrack-ng macchanger xterm)
 
-	for program in "${dependencies[@]}"; do
-		echo -ne "\n${yellowColour}[*]${endColour}${blueColour} Tools ${endColour}${purpleColour} $program${endColour}${blueColour}...${endColour}"
+  echo -e "${yellowColour}[*]${endColour}${grayColour} Checking programs...${endColour}"
+  sleep 2
 
-		test -f /usr/bin/$program
+  for program in "${dependencies[@]}"; do
+    echo -ne "\n${yellowColour}[*]${endColour}${blueColour} Tools ${endColour}${purpleColour} $program${endColour}${blueColour}...${endColour}"
 
-		if [ "$(echo $?)" == "0" ]; then
-			echo -e " ${greenColour}(V)${endColour}"
-		else
-			echo -e " ${redColour}(X)${endColour}\n"
-			echo -e "${yellowColour}[*]${endColour}${grayColour} Installing ${endColour}${blueColour}$program${endColour}${yellowColour}...${endColour}"
-			apt-get install $program -y > /dev/null 2>&1
-		fi; sleep 1
-	done
+    if [ -x "$(command -v $program)" ]; then
+      echo -e " ${greenColour}(V)${endColour}"
+    else
+      echo -e " ${redColour}(X)${endColour}\n"
+      if [ "$program" == "aircrack-ng" ]; then
+        echo "Please install aircrack-ng"
+        exit 0
+      else
+        echo -e "${yellowColour}[*]${endColour}${grayColour} Installing ${endColour}${blueColour}$program${endColour}${yellowColour}...${endColour}"
+        apt-get install $program -y
+      fi
+    fi
+    sleep 1
+  done
+  clear
 }
 
 if [ "$(id -u)" == "0" ]; then
   clear
+  checkDependencies
   # Mac Address
-  ifconfig wlo1 down && macchanger -a wlo1
-  ifconfig wlo1 up
- 
+  interface=$(iw dev | awk '$1=="Interface"{print $2}')
+  ifconfig $interface down && macchanger -a $interface
+  ifconfig $interface up
+
   iw dev | grep monitor >/dev/null
   if [[ $(echo $?) -ne 0 ]]; then
     echo "Setting up environment..."
     # Monitor Mode
     airmon-ng check kill
-    airmon-ng start wlo1
+    airmon-ng start $interface
   fi
   clear
   # New configurations
-  macchanger -s wlo1
+  macchanger -s $interface
   iw dev
   sleep 2
   # Networks
-  airodump-ng wlo1
+  xterm -e "airodump-ng $interface
 else
   echo "Run as root"
 fi
