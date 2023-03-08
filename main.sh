@@ -59,7 +59,7 @@ if [ "$(id -u)" == "0" ]; then
   macchanger -s $interface
   iw dev
   sleep 2
-  
+
   # Show networks
   xterm -e "airodump-ng $interface"
 else

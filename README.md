@@ -1,6 +1,6 @@
 # WI-FI Tool #<b>This tool is in maintenance</b>
 
-WI-FI Deauthentication Attack on Parrot OS
+WI-FI Deauthentication Attack for Debian based systems.
 
 Based on: 
 
