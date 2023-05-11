@@ -1,4 +1,4 @@
-# WI-FI Tool #<b>This tool is in maintenance</b>
+# WI-FI Tool
 
 WI-FI Deauthentication Attack for Debian based systems.
 
@@ -36,7 +36,7 @@ sudo ./main.sh
 
 ## capture.sh
 
-With this, we start to get hashes
+With this, we start getting hashes
 
 ``` bash
 sudo ./capture.sh -a "[Network Name]" -c [Chanel]
