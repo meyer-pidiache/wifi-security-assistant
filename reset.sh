@@ -1,19 +1,17 @@
 #!/bin/bash
 
 if [ "$(id -u)" == "0" ]; then
+  interface=$(iw dev | awk '$1=="Interface"{print $2}')
   echo "1/5"
-  ip link set wlo1 down
+  ip link set $interface down
   echo "2/5" 
-  iw wlo1 set type managed
+  iw $interface set type managed
   echo "3/5"
-  ip link set wlo1 up
+  systemctl restart wpa_supplicant.service NetworkManager.service dhcpcd.service
   echo "4/5"
-  systemctl restart NetworkManager.service
-  echo "5/5"
-  macchanger -r wlo1
-  macchanger -p wlo1
-  sleep 1
-  macchanger -p wlo1
+  macchanger -r $interface
+  macchanger -p $interface 
+  ip link set $interface up
   echo "Done!"
 else
   echo "Execute the program as root"

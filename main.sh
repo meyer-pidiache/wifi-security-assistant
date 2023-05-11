@@ -12,25 +12,20 @@ grayColour="\e[0;37m\033[1m"
 
 function checkDependencies() {
   clear
-  dependencies=(aircrack-ng macchanger xterm)
+  dependencies=(aircrack-ng macchanger)
 
-  echo -e "${yellowColour}[*]${endColour}${grayColour} Checking programs...${endColour}"
+  echo -e "[${yellowColour}*${endColour}]${grayColour} Checking programs...${endColour}"
   sleep 2
 
   for program in "${dependencies[@]}"; do
-    echo -ne "\n${yellowColour}[*]${endColour}${blueColour} Tools ${endColour}${purpleColour} $program${endColour}${blueColour}...${endColour}"
+    echo -ne "\n[${yellowColour}*${endColour}]${blueColour} Tools ${endColour}${purpleColour} $program${endColour}${blueColour}...${endColour}"
 
     if [ -x "$(command -v $program)" ]; then
       echo -e " ${greenColour}(V)${endColour}"
     else
       echo -e " ${redColour}(X)${endColour}\n"
-      if [ "$program" == "aircrack-ng" ]; then
-        echo "Please install aircrack-ng"
-        exit 0
-      else
-        echo -e "${yellowColour}[*]${endColour}${grayColour} Installing ${endColour}${blueColour}$program${endColour}${yellowColour}...${endColour}"
-        apt-get install $program -y
-      fi
+      echo "Please install $program"
+      exit 0
     fi
     sleep 1
   done
@@ -61,7 +56,7 @@ if [ "$(id -u)" == "0" ]; then
   sleep 2
 
   # Show networks
-  xterm -e "airodump-ng $interface"
+  airodump-ng $interface
 else
-  echo "Run as root"
+  echo -e "[${yellowColour}*${endColour}] Run as root"
 fi

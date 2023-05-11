@@ -55,6 +55,6 @@ sudo ./reset.sh
 Change MAC Address
 
 ``` bash
-sudo ./mach.sh
+sudo ./changeMAC.sh
 ```
 
