@@ -13,6 +13,7 @@ function ctrl_c(){
   echo -e "[${blueColour}*${endColour}] Saliendo"
   mv *.cap "$apName".cap
   rm *.csv *.netxml
+  ./reset.sh
 	exit 0
 }
 

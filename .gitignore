@@ -2,4 +2,8 @@
 *.csv
 *.netxml
 *.txt
+# NPM
+node_modules/
+dist/
+package-lock.json
 

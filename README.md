@@ -1,12 +1,12 @@
 # WI-FI Tool
 
-WI-FI Deauthentication Attack for Debian based systems.
+WI-FI Deauthentication Attack.
 
 Based on: 
 
-S4vitar - https://github.com/s4vitar/wifiCrack
+- S4vitar - https://github.com/s4vitar/wifiCrack
 
-David Bombal - https://www.youtube.com/watch?v=WfYxrLaqlN8
+- David Bombal - https://www.youtube.com/watch?v=WfYxrLaqlN8
 
 ## Requirements
 
@@ -48,13 +48,5 @@ Reset initial config
 
 ``` bash
 sudo ./reset.sh
-```
-
-## mach.sh
-
-Change MAC Address
-
-``` bash
-sudo ./changeMAC.sh
 ```
 
