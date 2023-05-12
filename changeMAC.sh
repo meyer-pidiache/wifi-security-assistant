@@ -7,6 +7,6 @@ if [ "$(id -u)" == "0" ]; then
   ifconfig $interface down && macchanger -a $interface
   ifconfig $Interface up
 else
-  echo "Execute as root"
+  echo "[*] Execute as root"
 fi
 

@@ -12,8 +12,8 @@ if [ "$(id -u)" == "0" ]; then
   macchanger -r $interface
   macchanger -p $interface 
   ip link set $interface up
-  echo "Done!"
+  echo -e "\n[*] Done!"
 else
-  echo "Execute the program as root"
+  echo "[*] Execute the program as root"
 fi
 

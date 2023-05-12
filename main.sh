@@ -10,6 +10,18 @@ purpleColour="\e[0;35m\033[1m"
 turquoiseColour="\e[0;36m\033[1m"
 grayColour="\e[0;37m\033[1m"
 
+#trap ctrl_c INT
+#function ctrl_c(){
+#  kill -9 $aireplay_ng_xterm_PID 2>/dev/null
+#  echo -e "\n[${blueColour}*${endColour}] Saliendo"
+  #mv *.cap "$apName".cap
+  #rm *.csv *.netxml
+#	exit 0
+#}
+
+#  sleep 10
+#  kill -9 $airodump_ng_xterm_PID 
+
 function checkDependencies() {
   clear
   dependencies=(aircrack-ng macchanger)
@@ -24,7 +36,7 @@ function checkDependencies() {
       echo -e " ${greenColour}(V)${endColour}"
     else
       echo -e " ${redColour}(X)${endColour}\n"
-      echo "Please install $program"
+      echo "[${purpleColour}*${endColour}] Please install $program"
       exit 0
     fi
     sleep 1
@@ -43,7 +55,7 @@ if [ "$(id -u)" == "0" ]; then
 
   iw dev | grep monitor >/dev/null
   if [[ $(echo $?) -ne 0 ]]; then
-    echo "Setting up environment..."
+    echo -e "[${blueColour}*${endColour}] Setting up environment..."
     # Monitor Mode
     airmon-ng check kill
     airmon-ng start $interface
@@ -56,7 +68,10 @@ if [ "$(id -u)" == "0" ]; then
   sleep 2
 
   # Show networks
+  #xterm -fg white -bg black -hold -e "airodump-ng $interface" &
   airodump-ng $interface
+  airodump_ng_xterm_PID=$!
+  echo "Saliendo..."
 else
   echo -e "[${yellowColour}*${endColour}] Run as root"
 fi

