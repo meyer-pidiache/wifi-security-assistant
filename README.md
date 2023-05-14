@@ -28,25 +28,8 @@ cd .. && rm -rf aircrack-ng-1.7
 
 ## main.sh
 
-This script setup our environment
+Start program.
 
 ``` bash
 sudo ./main.sh
 ```
-
-## capture.sh
-
-With this, we start getting hashes
-
-``` bash
-sudo ./capture.sh -a "[Network Name]" -c [Chanel]
-```
-
-## reset.sh
-
-Reset initial config
-
-``` bash
-sudo ./reset.sh
-```
-

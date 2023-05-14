@@ -1,49 +1,56 @@
 #!/bin/bash
 
 # Colors
-end_color="\033[0m\e[0m"
-red_color="\e[0;31m\033[1m"
-yellow_color="\e[0;33m\033[1m"
-blue_color="\e[0;34m\033[1m"
-green_color="\e[0;32m\033[1m"
-purple_color="\e[0;35m\033[1m"
-turquoise_color="\e[0;36m\033[1m"
+end_color="$(tput sgr0)"
+red_color="$(tput setaf 1)"
+yellow_color="$(tput setaf 3)"
+blue_color="$(tput setaf 4)"
+green_color="$(tput setaf 2)"
+purple_color="$(tput setaf 5)"
+turquoise_color="$(tput setaf 6)"
 
 # Network Interface
 interface=$(iw dev | awk '$1=="Interface"{print $2}')
 
 # Colors functions
-function error_m () {
+error_m () {
   echo -e "[${red_color}*${end_color}] $1"
   exit 0
 }
 
-function warning_m () {
+warning_m () {
   echo -ne "[${yellow_color}*${end_color}] $1"
 }
 
-function working_m () {
+working_m () {
   echo -e "[${blue_color}*${end_color}] $1"
 }
 
-function ready_m () {
+ready_m () {
   echo -e "\n[${green_color}*${end_color}] $1"
 }
 
-function message_color (){
+message_color (){
  echo -en "[${purple_color}*${end_color}] ${turquoise_color}$1${end_color}" 
 }
 
 # Exit Manage
 trap ctrl_c INT
-function ctrl_c () {
+ctrl_c () {
   kill -9 "$airodump_ng_xterm_PID" 1>&2 2>/dev/null
   kill -9 "$aireplay_ng_xterm_PID" 1>&2 2>/dev/null
   resetInterface
 	exit 0
 }
 
-function resetInterface () {
+isMonitorMode() {
+  iw dev | grep monitor >/dev/null
+  if [[ "$(echo $?)" -ne 0 ]]; then
+    return 1
+  fi
+}
+
+resetInterface () {
   message_color "Resseting Network\n\n"
 
   working_m "Setting Managed Interface"
@@ -59,7 +66,7 @@ function resetInterface () {
   ready_m "Done!"
 }
 
-function startAttack () {
+startAttack () {
   # Show networks
   xterm -bg black -hold -geometry 180x60 -e "airodump-ng  --wps --manufacturer $interface" 1>&2 2>/dev/null &
   airodump_ng_xterm_PID=$!
@@ -79,7 +86,7 @@ function startAttack () {
 	
 }
 
-function setMonitorMode () {
+setMonitorMode () {
   # Mac Address
   ifconfig "$interface" down && macchanger -a "$interface" >/dev/null
   ifconfig "$interface" up
@@ -106,7 +113,7 @@ function setMonitorMode () {
   sleep 2
 }
 
-function checkDependencies () {
+checkDependencies () {
   clear
   dependencies=(aircrack-ng macchanger xterm)
 

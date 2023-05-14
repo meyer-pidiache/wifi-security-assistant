@@ -1,7 +1,4 @@
-*.cap
-*.csv
-*.netxml
-*.txt
+captures/
 # NPM
 node_modules/
 dist/
