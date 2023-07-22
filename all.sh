@@ -110,7 +110,7 @@ startAttack () {
   for bssid in "${bssid_list[@]}"; do 
     channel="${bssid_ch_list[$pos]}"
 
-    if [[ "$channel" == "$ch" && $count -le 3 ]]; then
+    if [[ "$channel" == "$ch" && $count -le 1 ]]; then
       
       working_m "$bssid (${essid_list[$count]})"
 
